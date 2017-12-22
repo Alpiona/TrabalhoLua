@@ -1,5 +1,5 @@
 Alunos = {}
-Alunos ._index = Alunos
+Alunos._index = Alunos
 
 function Alunos:novo (linha)
   local novoAluno = {}
@@ -18,14 +18,48 @@ function Alunos:criaTabela (nomeArquivo)
   local cont = 1
   local tabelaAlunos = {}
   for linha in arquivo:lines() do
-    print(linha)
-    tabelaAlunos[cont] = {}
-    tabelaAlunos[cont] = Alunos:novo(linha)
+    if (cont > 1) then
+      tabelaAlunos[cont-1] = {}
+      tabelaAlunos[cont-1] = Alunos:novo(linha)
+    end
     cont = cont+1
   end
   for i,aluno in ipairs(tabelaAlunos) do
     print (aluno.nome)
   end
   return tabelaAlunos
+end
 
+Avaliacoes = {}
+Avaliacoes._index = Avaliacoes
+
+function Avaliacoes:novo (linha)
+  local novaAvaliacao = {}
+  setmetatable(novaAvaliacao, Avaliacao)
+  local disciplina, codigo, nome, peso, tipo, data, tamgrupo  = linha:match("^([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);([^;]*);?([^;]*)$")
+  novaAvaliacao.disciplina = disciplina
+  novaAvaliacao.codigo = codigo
+  novaAvaliacao.nome = nome
+  novaAvaliacao.peso = peso
+  novaAvaliacao.tipo = tipo
+  novaAvaliacao.data = data
+  novaAvaliacao.tamgrupo = tamgrupo
+  return novaAvaliacao
+end
+
+function Avaliacoes:criaTabela (nomeArquivo)
+  local arquivo = io.open(nomeArquivo)
+  local cont = 1
+  local tabelaAvaliacoes = {}
+  for linha in arquivo:lines() do
+    if (cont>1) then
+      tabelaAvaliacoes[cont-1] = {}
+      tabelaAvaliacoes[cont-1] = Avaliacoes:novo(linha)
+    end
+    cont = cont+1
+  end
+  for i,avaliacao in ipairs(tabelaAvaliacoes) do
+    print (avaliacao.disciplina)
+  end
+  return tabelaAvaliacoes
 end
