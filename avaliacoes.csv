@@ -1,0 +1,12 @@
+Disciplina;Código;Nome;Peso;Tipo;Data;Tamanho Máximo Grupo
+INF09331;Prog3-P1;Prova Parcial 01;1;P;23/05/2014
+INF09331;Prog3-T1;Trabalho Prático Java;2;T;30/06/2014;2
+INF09331;Prog3-T2;Trabalho Prático C++;1;T;25/07/2014;2
+INF09324;PAC-P1;Prova Parcial 01;1;P;04/06/2014
+INF09324;PAC-T1;Trabalho Prático Java;1;T;08/07/2014;2
+INF09324;PAC-T2;Trabalho Prático C++;2;T;28/07/2014;2
+INF09373;DWWS-T1;Trabalho Prático 01;1;T;01/06/2014;3
+INF09373;DWWS-T2;Trabalho Prático 02;1;T;07/08/2014;3
+INF09331;Prog3-PF;Prova Final;1;F;04/08/2014
+INF09324;PAC-PF;Prova Final;1;F;04/08/2014
+INF09373;DWWS-PF;Prova Final;1;F;07/08/2014
