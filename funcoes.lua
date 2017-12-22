@@ -30,6 +30,7 @@ function Alunos:criaTabela (nomeArquivo)
   return tabelaAlunos
 end
 
+
 Avaliacoes = {}
 Avaliacoes._index = Avaliacoes
 
@@ -62,4 +63,34 @@ function Avaliacoes:criaTabela (nomeArquivo)
     print (avaliacao.disciplina)
   end
   return tabelaAvaliacoes
+end
+
+
+Cursos = {}
+Cursos._index = Cursos
+
+function Cursos:novo (linha)
+  local novoCurso = {}
+  setmetatable(novoCurso, Cursos)
+  local codigo, nome = linha:match("^([^;]*);([^;]*)$")
+  novoCurso.codigo = codigo
+  novoCurso.nome = nome
+  return novoCurso
+end
+
+function Cursos:criaTabela (nomeArquivo)
+  local arquivo = io.open(nomeArquivo)
+  local cont = 1
+  local tabelaCursos = {}
+  for linha in arquivo:lines() do
+    if (cont>1) then
+      tabelaCursos[cont-1] = {}
+      tabelaCursos[cont-1] = Cursos:novo(linha)
+    end
+    cont = cont +1
+  end
+  for i,curso in ipairs(tabelaCursos) do
+    print (curso.nome)
+  end
+  return tabelaCursos
 end
