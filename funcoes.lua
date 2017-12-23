@@ -24,9 +24,6 @@ function Alunos:criaTabela (nomeArquivo)
     end
     cont = cont+1
   end
-  for i,aluno in ipairs(tabelaAlunos) do
-    print (aluno.nome)
-  end
   return tabelaAlunos
 end
 
@@ -59,9 +56,6 @@ function Avaliacoes:criaTabela (nomeArquivo)
     end
     cont = cont+1
   end
-  for i,avaliacao in ipairs(tabelaAvaliacoes) do
-    print (avaliacao.disciplina)
-  end
   return tabelaAvaliacoes
 end
 
@@ -89,9 +83,6 @@ function Cursos:criaTabela (nomeArquivo)
     end
     cont = cont +1
   end
-  for i,curso in ipairs(tabelaCursos) do
-    print (curso.nome)
-  end
   return tabelaCursos
 end
 
@@ -118,9 +109,6 @@ function Disciplinas:criaTabela (nomeArquivo)
       tabelaDisciplinas[cont-1] = Disciplinas:novo(linha)
     end
     cont = cont+1
-  end
-  for i,disciplina in ipairs (tabelaDisciplinas) do
-    print (disciplina.nome)
   end
   return tabelaDisciplinas
 end
@@ -150,8 +138,32 @@ function Notas:criaTabela(nomeArquivo)
     end
     cont = cont+1
   end
-  for i,nota in ipairs (tabelaNotas) do
-    print (nota.nota)
-  end
   return tabelaNotas
+end
+
+
+function organizaTabelaAlunos (tabelaAlunos, tabelaCursos, tabelaDisciplinas)
+cont =1
+  for i, aluno in ipairs(tabelaAlunos) do
+    local disciplinas = {}
+    for j, disciplina in ipairs (tabelaDisciplinas) do
+      for discip in aluno.disciplina:gmatch("(%w+)") do
+        if (discip == disciplina.codigo) then
+          disciplinas[cont] = disciplina
+          cont = cont +1
+        end
+      end
+    end
+    aluno.disciplina = disciplinas
+    cont = 1
+    for j, curso in ipairs(tabelaCursos) do
+      if (curso.codigo == aluno.curso) then
+        aluno.curso = curso
+      end
+    end
+  end
+end
+
+function organizaTabelas(tabelaAlunos, tabelaAvaliacoes, tabelaCursos, tabelaDisciplinas, tabelaNotas)
+  organizaTabelaAlunos (tabelaAlunos, tabelaCursos, tabelaDisciplinas)
 end
