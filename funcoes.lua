@@ -3,11 +3,16 @@ Alunos._index = Alunos
 
 function Alunos:novo (linha)
   local novoAluno = {}
+  local cont = 1
   setmetatable(novoAluno, Aluno)
-  local matricula, nome, disciplina, tipo, curso = linha:match("^([^;]*);([^;]*);([^;]*);([^;]*);([^;]*)$")
+  local matricula, nome, disciplinas, tipo, curso = linha:match("^([^;]*);([^;]*);([^;]*);([^;]*);([^;]*)$")
+  novoAluno.disciplinas = {}
+  for disciplina in disciplinas:gmatch("(%w+)") do
+    novoAluno.disciplinas[cont] = disciplina
+    cont = cont+1
+  end
   novoAluno.matricula = matricula
   novoAluno.nome = nome
-  novoAluno.disciplina = disciplina
   novoAluno.tipo = tipo
   novoAluno.curso = curso
   return novoAluno
@@ -19,7 +24,6 @@ function Alunos:criaTabela (nomeArquivo)
   local tabelaAlunos = {}
   for linha in arquivo:lines() do
     if (cont > 1) then
-      tabelaAlunos[cont-1] = {}
       tabelaAlunos[cont-1] = Alunos:novo(linha)
     end
     cont = cont+1
@@ -118,11 +122,16 @@ Notas = {}
 Notas._index = notas
 
 function Notas:novo(linha)
+  local cont =1
   local novaNota = {}
   setmetatable (novaNota, Notas)
-  local avalicao, matricula, nota = linha:match("^([^;]*);([^;]*);([^;]*)$")
+  local avalicao, matriculas, nota = linha:match("^([^;]*);([^;]*);([^;]*)$")
   novaNota.avaliacao = avaliacao
-  novaNota.matricula = matricula
+  novaNota.matricula = {}
+  for matricula in matriculas:gmatch("(%w+)") do
+    novaNota.matricula[cont] = matricula
+    cont = cont + 1
+  end
   novaNota.nota = nota
   return novaNota
 end
@@ -141,29 +150,6 @@ function Notas:criaTabela(nomeArquivo)
   return tabelaNotas
 end
 
-
-function organizaTabelaAlunos (tabelaAlunos, tabelaCursos, tabelaDisciplinas)
-cont =1
-  for i, aluno in ipairs(tabelaAlunos) do
-    local disciplinas = {}
-    for j, disciplina in ipairs (tabelaDisciplinas) do
-      for discip in aluno.disciplina:gmatch("(%w+)") do
-        if (discip == disciplina.codigo) then
-          disciplinas[cont] = disciplina
-          cont = cont +1
-        end
-      end
-    end
-    aluno.disciplina = disciplinas
-    cont = 1
-    for j, curso in ipairs(tabelaCursos) do
-      if (curso.codigo == aluno.curso) then
-        aluno.curso = curso
-      end
-    end
-  end
-end
-
 function organizaTabelas(tabelaAlunos, tabelaAvaliacoes, tabelaCursos, tabelaDisciplinas, tabelaNotas)
-  organizaTabelaAlunos (tabelaAlunos, tabelaCursos, tabelaDisciplinas)
+  
 end
