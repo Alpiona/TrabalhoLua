@@ -14,7 +14,7 @@ function Alunos:novo (linha)
 end
 
 function Alunos:criaTabela (nomeArquivo)
-  local arquivo = io.open(nomeArquivo)
+  local arquivo = io.open(nomeArquivo,"r")
   local cont = 1
   local tabelaAlunos = {}
   for linha in arquivo:lines() do
@@ -49,7 +49,7 @@ function Avaliacoes:novo (linha)
 end
 
 function Avaliacoes:criaTabela (nomeArquivo)
-  local arquivo = io.open(nomeArquivo)
+  local arquivo = io.open(nomeArquivo,"r")
   local cont = 1
   local tabelaAvaliacoes = {}
   for linha in arquivo:lines() do
@@ -79,7 +79,7 @@ function Cursos:novo (linha)
 end
 
 function Cursos:criaTabela (nomeArquivo)
-  local arquivo = io.open(nomeArquivo)
+  local arquivo = io.open(nomeArquivo,"r")
   local cont = 1
   local tabelaCursos = {}
   for linha in arquivo:lines() do
@@ -93,4 +93,65 @@ function Cursos:criaTabela (nomeArquivo)
     print (curso.nome)
   end
   return tabelaCursos
+end
+
+
+Disciplinas = {}
+Disciplinas._index = disciplinas
+
+function Disciplinas:novo (linha)
+  local novaDisciplina = {}
+  setmetatable(novaDisciplina, Disciplinas)
+  local codigo, nome = linha:match("^([^;]*);([^;]*)$")
+  novaDisciplina.codigo = codigo
+  novaDisciplina.nome = nome
+  return novaDisciplina
+end
+
+function Disciplinas:criaTabela (nomeArquivo)
+  local arquivo = io.open(nomeArquivo,"r")
+  local cont = 1
+  local tabelaDisciplinas = {}
+  for linha in arquivo:lines() do
+    if (cont>1) then
+      tabelaDisciplinas[cont-1] = {}
+      tabelaDisciplinas[cont-1] = Disciplinas:novo(linha)
+    end
+    cont = cont+1
+  end
+  for i,disciplina in ipairs (tabelaDisciplinas) do
+    print (disciplina.nome)
+  end
+  return tabelaDisciplinas
+end
+
+
+Notas = {}
+Notas._index = notas
+
+function Notas:novo(linha)
+  local novaNota = {}
+  setmetatable (novaNota, Notas)
+  local avalicao, matricula, nota = linha:match("^([^;]*);([^;]*);([^;]*)$")
+  novaNota.avaliacao = avaliacao
+  novaNota.matricula = matricula
+  novaNota.nota = nota
+  return novaNota
+end
+
+function Notas:criaTabela(nomeArquivo)
+  local arquivo = io.open(nomeArquivo,"r")
+  local cont = 1
+  local tabelaNotas = {}
+  for linha in arquivo:lines() do
+    if (cont>1) then
+      tabelaNotas[cont-1] = {}
+      tabelaNotas[cont-1] = Notas:novo(linha)
+    end
+    cont = cont+1
+  end
+  for i,nota in ipairs (tabelaNotas) do
+    print (nota.nota)
+  end
+  return tabelaNotas
 end
