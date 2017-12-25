@@ -28,6 +28,7 @@ function Alunos:criaTabela (nomeArquivo)
     end
     cont = cont+1
   end
+  arquivo:close()
   return tabelaAlunos
 end
 
@@ -44,7 +45,9 @@ function Avaliacoes:novo (linha)
   novaAvaliacao.nome = nome
   novaAvaliacao.peso = peso
   novaAvaliacao.tipo = tipo
-  novaAvaliacao.data = data
+  local dataAux = {}
+  dataAux.dia, dataAux.mes , dataAux.ano = data:match("(%d+)/(%d+)/(%d+)")
+  novaAvaliacao.data = dataAux
   novaAvaliacao.tamgrupo = tamgrupo
   return novaAvaliacao
 end
@@ -60,6 +63,7 @@ function Avaliacoes:criaTabela (nomeArquivo)
     end
     cont = cont+1
   end
+  arquivo:close()
   return tabelaAvaliacoes
 end
 
@@ -87,6 +91,7 @@ function Cursos:criaTabela (nomeArquivo)
     end
     cont = cont +1
   end
+  arquivo:close()
   return tabelaCursos
 end
 
@@ -114,6 +119,7 @@ function Disciplinas:criaTabela (nomeArquivo)
     end
     cont = cont+1
   end
+  arquivo:close()
   return tabelaDisciplinas
 end
 
@@ -147,9 +153,32 @@ function Notas:criaTabela(nomeArquivo)
     end
     cont = cont+1
   end
+  arquivo:close()
   return tabelaNotas
 end
 
-function organizaTabelas(tabelaAlunos, tabelaAvaliacoes, tabelaCursos, tabelaDisciplinas, tabelaNotas)
-  
+function ordenaAlunos (tabelaA, tabelaB)
+  return tabelaA.nome < tabelaB.nome
+end
+
+function ordenaAvaliacoes (tabelaA, tabelaB)
+  if tabelaA.disciplina == tabelaB.disciplina then
+    if tabelaA.data.mes == tabelaB.data.mes then
+      return tabelaA.data.dia < tabelaB.data.dia
+    else
+      return tabelaA.data.mes < tabelaB.data.mes
+    end
+  else
+    return tabelaA.disciplina < tabelaB.disciplina
+  end
+end
+
+function imprimePautas (tabelaAlunos, tabelaAvaliacoes, tabelaNotas, tabelaDisciplinas)
+
+end
+
+function imprimeSaidas(tabelaAlunos, tabelaAvaliacoes, tabelaCursos, tabelaDisciplinas, tabelaNotas)
+  table.sort(tabelaAlunos, ordenaAlunos)
+  table.sort(tabelaAvaliacoes, ordenAvaliacoes)
+  imprimePautas(tabelaAlunos, tabelaAvaliacoes, tabelaNotas, tabelaDisciplinas)
 end
