@@ -139,6 +139,8 @@ function Notas:novo(linha)
     cont = cont + 1
   end
   novaNota.nota = string.gsub(nota, ",", ".")
+  formatnumeros = string.format("%.2f",novaNota.nota)
+  novaNota.nota = formatnumeros
   return novaNota
 end
 
@@ -173,7 +175,7 @@ function ordenaAvaliacoes (tabelaA, tabelaB)
   end
 end
 
-function colunasEArquivoPauta (tabelaAvaliacoes, disciplina)
+function arquivoPauta (tabelaAvaliacoes, disciplina)
   local colunas = "Matrícula;Aluno;"
   local arquivoSaida = "1-pauta-"..disciplina.codigo..".csv"
   local relatorioSaida = io.open(arquivoSaida, "w+")
@@ -202,6 +204,8 @@ function linhaAlunoPauta(pesoAvaliacoes, aluno,tabelaAvaliacoes, tabelaNotas, co
   local mediaP = 0
   local mediaF = 0
   local pesoTotal = 0
+  aluno.mediaF ={}
+  aluno.aprovado={}
   local linha = aluno.matricula..";"..aluno.nome..";"
   for j, avaliacao in ipairs (tabelaAvaliacoes) do
     if avaliacao.disciplina == codigo then
@@ -213,12 +217,26 @@ function linhaAlunoPauta(pesoAvaliacoes, aluno,tabelaAvaliacoes, tabelaNotas, co
               mediaP = mediaP + (nota.nota*pesoAvaliacoes[cont])
               pesoTotal = pesoTotal + pesoAvaliacoes[cont]
               if (cont == #pesoAvaliacoes) and (mediaP/pesoTotal) >= 7 then
-                linha = linha..(mediaP/pesoTotal)..";-;"..(mediaP/pesoTotal).."\n"
+                local formatMediaP = string.format("%.2f",(math.floor(mediaP/pesoTotal*100+0.5)/100))
+                linha = linha..(formatMediaP)..";-;"..(formatMediaP).."\n"
+                print(linha)
+                -- linha = linha..(mediaP/pesoTotal)..";-;"..(mediaP/pesoTotal).."\n"
+                aluno.mediaF[codigo] = mediaP/pesoTotal
+                aluno.aprovado[codigo] = true
                 return linha
               end
               cont = cont+1
             elseif (matricula == aluno.matricula) and (cont > #pesoAvaliacoes) then
-              linha = linha..(mediaP/pesoTotal)..";"..nota.nota..";"..(((mediaP/pesoTotal)+nota.nota)/2).."\n"
+              -- linha = linha..(mediaP/pesoTotal)..";"..nota.nota..";"..(((mediaP/pesoTotal)+nota.nota)/2).."\n"
+              local formatMediaP = string.format("%.2f",(math.floor(mediaP/pesoTotal*100+0.5)/100))
+              local formatMediaF = string.format("%.2f",(math.floor((formatMediaP+nota.nota)/2*100+0.5)/100))
+              linha = linha..(formatMediaP)..";"..nota.nota..";"..(formatMediaF).."\n"
+              aluno.mediaF[codigo] = ((mediaP/pesoTotal)+nota.nota)/2
+              if aluno.mediaF[codigo] >= 5 then
+                aluno.aprovado[codigo] = true
+              else
+                aluno.aprovado[codigo] = false
+              end
               return linha
             end
           end
@@ -230,7 +248,7 @@ end
 
 function imprimePautas (tabelaAlunos, tabelaAvaliacoes, tabelaNotas, tabelaDisciplinas)
   for i, disciplina in ipairs (tabelaDisciplinas) do
-    local pesoAvaliacoes, arquivoSaida = colunasEArquivoPauta(tabelaAvaliacoes, disciplina)
+    local pesoAvaliacoes, arquivoSaida = arquivoPauta(tabelaAvaliacoes, disciplina)
     for j, aluno in ipairs (tabelaAlunos) do
       for k,disciplinaPresente in ipairs (aluno.disciplinas) do
         if (disciplina.codigo == disciplinaPresente) then
@@ -241,8 +259,81 @@ function imprimePautas (tabelaAlunos, tabelaAvaliacoes, tabelaNotas, tabelaDisci
   end
 end
 
+function criaDisciplinaRelatorio (codigo, nome, curso)
+  novaDisciplina = {}
+  novaDisciplina.codigo = codigo
+  novaDisciplina.nome = nome
+  novaDisciplina.turma = curso
+  return novaDisciplina
+end
+
+function organizaEstatistica(relatorioDisciplinas, tabelaAlunos)
+  for i, disciplina in ipairs(relatorioDisciplinas) do
+    local aprovados = 0
+    local reprovados = 0
+    local media = 0
+    for j, aluno in ipairs(tabelaAlunos) do
+      if aluno.curso == disciplina.turma then
+        for k, disciplinaAluno in ipairs(aluno.disciplinas) do
+          print(aluno.disciplinaAluno, disciplina.codigo)
+          if aluno.disciplinaAluno == disciplina.codigo then
+            media = media + aluno.mediaF[disciplina.codigo]
+            print(aluno.aprovado[disciplina.codigo], disciplina.codigo)
+            if aluno.aprovado[disciplina.codigo] then
+              aprovados = aprovados + 1
+              print (aprovados)
+            else
+              reprovados = reprovados +1
+            end
+          end
+        end
+      end
+    end
+    print(aprovados, media, alunos)
+    disciplina.aprovacao = 100* (aprovados/(aprovados+reprovados))
+    disciplina.media = media/(aprovados+reprovados)
+  end
+  for i, disciplina in ipairs(relatorioDisciplinas) do
+    print (disciplina.codigo, disciplina.nome, disciplina.media, disciplina.aprovacao)
+  end
+end
+
+function imprimeEstatisticas (tabelaAlunos, tabelaCursos, tabelaDisciplinas)
+  local colunas = "Código;Disciplina;Curso;Média;% Aprovados"
+  local cont = 1
+  local relatorioDisciplinas = {}
+  local precisaCriar = false
+  for i, disciplina in ipairs(tabelaDisciplinas) do
+    for j, aluno in ipairs(tabelaAlunos) do
+      for k, disciplinaAluno in ipairs(aluno.disciplinas) do
+        precisaCriar = false
+        if disciplina.codigo == disciplinaAluno then
+          precisaCriar = true
+          if type(relatorioDisciplinas) == "table" then
+            for y, disciplinaRelatorio in ipairs(relatorioDisciplinas) do
+              if disciplinaRelatorio.codigo == disciplinaAluno and disciplinaRelatorio.turma == aluno.curso then
+                precisaCriar = false
+              end
+            end
+          end
+        end
+        if precisaCriar then
+          relatorioDisciplinas[cont] = criaDisciplinaRelatorio(disciplina.codigo, disciplina.nome, aluno.curso)
+          cont = cont + 1
+        end
+      end
+    end
+  end
+  print (colunas)
+  organizaEstatistica(relatorioDisciplinas, tabelaAlunos)
+  for y,disciplinaRelatorio in ipairs(relatorioDisciplinas) do
+
+  end
+end
+
 function imprimeSaidas(tabelaAlunos, tabelaAvaliacoes, tabelaCursos, tabelaDisciplinas, tabelaNotas)
   table.sort(tabelaAlunos, ordenaAlunos)
   table.sort(tabelaAvaliacoes, ordenaAvaliacoes)
   imprimePautas(tabelaAlunos, tabelaAvaliacoes, tabelaNotas, tabelaDisciplinas)
+  imprimeEstatisticas(tabelaAlunos, tabelaCursos, tabelaDisciplinas)
 end
