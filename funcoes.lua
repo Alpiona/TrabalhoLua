@@ -3,9 +3,14 @@ Alunos._index = Alunos
 
 function Alunos:novo (linha)
   local novoAluno = {}
+  local cont = 1
   setmetatable(novoAluno, Aluno)
   local matricula, nome, disciplinas, tipo, curso = linha:match("^([^;]*);([^;]*);([^;]*);([^;]*);([^;]*)$")
-  novoAluno.disciplinas = disciplinas
+  novoAluno.disciplinas = {}
+  for disciplina in disciplinas:gmatch("(%w+)") do
+    novoAluno.disciplinas[cont] = disciplina
+    cont = cont +1
+  end
   novoAluno.matricula = matricula
   novoAluno.nome = nome
   novoAluno.tipo = tipo
@@ -126,14 +131,14 @@ function Notas:novo(linha)
   local cont =1
   local novaNota = {}
   setmetatable (novaNota, Notas)
-  local avalicao, matriculas, nota = linha:match("^([^;]*);([^;]*);([^;]*)$")
+  local avaliacao, matriculas, nota = linha:match("^([^;]*);([^;]*);([^;]*)$")
   novaNota.avaliacao = avaliacao
-  novaNota.matricula = {}
+  novaNota.matriculas = {}
   for matricula in matriculas:gmatch("(%w+)") do
-    novaNota.matricula[cont] = matricula
+    novaNota.matriculas[cont] = matricula
     cont = cont + 1
   end
-  novaNota.nota = nota
+  novaNota.nota = string.gsub(nota, ",", ".")
   return novaNota
 end
 
@@ -168,29 +173,72 @@ function ordenaAvaliacoes (tabelaA, tabelaB)
   end
 end
 
-function imprimePautas (tabelaAlunos, tabelaAvaliacoes, tabelaNotas, tabelaDisciplinas)
-  local ultimaDisciplina = tabelaAvaliacoes[1].disciplina
-  for i, disciplina in ipairs (tabelaDisciplinas) do
-    local colunas = "Matrícula;Aluno;"
-    local arquivoSaida = "1-pauta-"..disciplina.codigo..".csv"
-    local relatorioSaida = io.open(arquivoSaida, "w+")
-    local cont = 0
-    for j, avaliacao in ipairs(tabelaAvaliacoes) do
-      if avaliacao.disciplina == disciplina.codigo then
-        cont = cont + 1
-      end
+function colunasEArquivoPauta (tabelaAvaliacoes, disciplina)
+  local colunas = "Matrícula;Aluno;"
+  local arquivoSaida = "1-pauta-"..disciplina.codigo..".csv"
+  local relatorioSaida = io.open(arquivoSaida, "w+")
+  local cont = 0
+  local pesoAvaliacoes = {}
+  for j, avaliacao in ipairs(tabelaAvaliacoes) do
+    if avaliacao.disciplina == disciplina.codigo then
+      cont = cont + 1
     end
-    for j, avaliacao in ipairs(tabelaAvaliacoes) do
-      if avaliacao.disciplina == disciplina.codigo and cont > 1 then
-        colunas = colunas..avaliacao.codigo..";"
-        cont = cont -1
-      end
-    end
-    colunas = colunas.."Média Parcial;Prova Final;Média Final"
   end
+  qntAvaliacoes = cont
+  for j, avaliacao in ipairs(tabelaAvaliacoes) do
+    if avaliacao.disciplina == disciplina.codigo and cont > 1 then
+      colunas = colunas..avaliacao.codigo..";"
+      cont = cont -1
+      pesoAvaliacoes[qntAvaliacoes-cont] = avaliacao.peso
+    end
+  end
+  colunas = colunas.."Média Parcial;Prova Final;Média Final"
+  relatorioSaida:write(colunas.."\n")
+  return pesoAvaliacoes, relatorioSaida
+end
 
+function linhaAlunoPauta(pesoAvaliacoes, aluno,tabelaAvaliacoes, tabelaNotas, codigo)
+  local cont = 1
+  local mediaP = 0
+  local mediaF = 0
+  local pesoTotal = 0
+  local linha = aluno.matricula..";"..aluno.nome..";"
+  for j, avaliacao in ipairs (tabelaAvaliacoes) do
+    if avaliacao.disciplina == codigo then
+      for i, nota in ipairs(tabelaNotas) do
+        if (nota.avaliacao == avaliacao.codigo) then
+          for k, matricula in ipairs(nota.matriculas) do
+            if (matricula == aluno.matricula) and (cont <= #pesoAvaliacoes) then
+              linha = linha..nota.nota..";"
+              mediaP = mediaP + (nota.nota*pesoAvaliacoes[cont])
+              pesoTotal = pesoTotal + pesoAvaliacoes[cont]
+              if (cont == #pesoAvaliacoes) and (mediaP/pesoTotal) >= 7 then
+                linha = linha..(mediaP/pesoTotal)..";-;"..(mediaP/pesoTotal).."\n"
+                return linha
+              end
+              cont = cont+1
+            elseif (matricula == aluno.matricula) and (cont > #pesoAvaliacoes) then
+              linha = linha..(mediaP/pesoTotal)..";"..nota.nota..";"..(((mediaP/pesoTotal)+nota.nota)/2).."\n"
+              return linha
+            end
+          end
+        end
+      end
+    end
+  end
+end
 
-
+function imprimePautas (tabelaAlunos, tabelaAvaliacoes, tabelaNotas, tabelaDisciplinas)
+  for i, disciplina in ipairs (tabelaDisciplinas) do
+    local pesoAvaliacoes, arquivoSaida = colunasEArquivoPauta(tabelaAvaliacoes, disciplina)
+    for j, aluno in ipairs (tabelaAlunos) do
+      for k,disciplinaPresente in ipairs (aluno.disciplinas) do
+        if (disciplina.codigo == disciplinaPresente) then
+          arquivoSaida:write(linhaAlunoPauta (pesoAvaliacoes, aluno, tabelaAvaliacoes, tabelaNotas, disciplinaPresente))
+        end
+      end
+    end
+  end
 end
 
 function imprimeSaidas(tabelaAlunos, tabelaAvaliacoes, tabelaCursos, tabelaDisciplinas, tabelaNotas)
