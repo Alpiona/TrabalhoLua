@@ -217,22 +217,16 @@ function linhaAlunoPauta(pesoAvaliacoes, aluno,tabelaAvaliacoes, tabelaNotas, co
               mediaP = mediaP + (nota.nota*pesoAvaliacoes[cont])
               pesoTotal = pesoTotal + pesoAvaliacoes[cont]
               if (cont == #pesoAvaliacoes) and (mediaP/pesoTotal) >= 7 then
-<<<<<<< HEAD
                 local formatMediaP = string.format("%.2f",(math.floor(mediaP/pesoTotal*100+0.5)/100))
                 linha = linha..(formatMediaP)..";-;"..(formatMediaP).."\n"
                 print(linha)
                 -- linha = linha..(mediaP/pesoTotal)..";-;"..(mediaP/pesoTotal).."\n"
                 aluno.mediaF[codigo] = mediaP/pesoTotal
                 aluno.aprovado[codigo] = true
-=======
-                formatMediaP = string.format("%.2f",(math.floor(mediaP/pesoTotal*100+0.5)/100))
-                linha = linha..(formatMediaP)..";-;"..(formatMediaP).."\n"
->>>>>>> 8433ab8cd2afe130d85b6b759d151b9e4b869e84
                 return linha
               end
               cont = cont+1
             elseif (matricula == aluno.matricula) and (cont > #pesoAvaliacoes) then
-<<<<<<< HEAD
               -- linha = linha..(mediaP/pesoTotal)..";"..nota.nota..";"..(((mediaP/pesoTotal)+nota.nota)/2).."\n"
               local formatMediaP = string.format("%.2f",(math.floor(mediaP/pesoTotal*100+0.5)/100))
               local formatMediaF = string.format("%.2f",(math.floor((formatMediaP+nota.nota)/2*100+0.5)/100))
@@ -243,11 +237,6 @@ function linhaAlunoPauta(pesoAvaliacoes, aluno,tabelaAvaliacoes, tabelaNotas, co
               else
                 aluno.aprovado[codigo] = false
               end
-=======
-              formatMediaP = string.format("%.2f",(math.floor(mediaP/pesoTotal*100+0.5)/100))
-              formatMediaF = string.format("%.2f",(math.floor((formatMediaP+nota.nota)/2*100+0.5)/100))
-              linha = linha..(formatMediaP)..";"..nota.nota..";"..(formatMediaF).."\n"
->>>>>>> 8433ab8cd2afe130d85b6b759d151b9e4b869e84
               return linha
             end
           end
