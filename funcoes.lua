@@ -139,6 +139,8 @@ function Notas:novo(linha)
     cont = cont + 1
   end
   novaNota.nota = string.gsub(nota, ",", ".")
+  formatnumeros = string.format("%.2f",novaNota.nota)
+  novaNota.nota = formatnumeros
   return novaNota
 end
 
@@ -213,12 +215,15 @@ function linhaAlunoPauta(pesoAvaliacoes, aluno,tabelaAvaliacoes, tabelaNotas, co
               mediaP = mediaP + (nota.nota*pesoAvaliacoes[cont])
               pesoTotal = pesoTotal + pesoAvaliacoes[cont]
               if (cont == #pesoAvaliacoes) and (mediaP/pesoTotal) >= 7 then
-                linha = linha..(mediaP/pesoTotal)..";-;"..(mediaP/pesoTotal).."\n"
+                formatMediaP = string.format("%.2f",(math.floor(mediaP/pesoTotal*100+0.5)/100))
+                linha = linha..(formatMediaP)..";-;"..(formatMediaP).."\n"
                 return linha
               end
               cont = cont+1
             elseif (matricula == aluno.matricula) and (cont > #pesoAvaliacoes) then
-              linha = linha..(mediaP/pesoTotal)..";"..nota.nota..";"..(((mediaP/pesoTotal)+nota.nota)/2).."\n"
+              formatMediaP = string.format("%.2f",(math.floor(mediaP/pesoTotal*100+0.5)/100))
+              formatMediaF = string.format("%.2f",(math.floor((formatMediaP+nota.nota)/2*100+0.5)/100))
+              linha = linha..(formatMediaP)..";"..nota.nota..";"..(formatMediaF).."\n"
               return linha
             end
           end
