@@ -219,15 +219,12 @@ function linhaAlunoPauta(pesoAvaliacoes, aluno,tabelaAvaliacoes, tabelaNotas, co
               if (cont == #pesoAvaliacoes) and (mediaP/pesoTotal) >= 7 then
                 local formatMediaP = string.format("%.2f",(math.floor(mediaP/pesoTotal*100+0.5)/100))
                 linha = linha..(formatMediaP)..";-;"..(formatMediaP).."\n"
-                print(linha)
-                -- linha = linha..(mediaP/pesoTotal)..";-;"..(mediaP/pesoTotal).."\n"
                 aluno.mediaF[codigo] = mediaP/pesoTotal
                 aluno.aprovado[codigo] = true
                 return linha
               end
               cont = cont+1
             elseif (matricula == aluno.matricula) and (cont > #pesoAvaliacoes) then
-              -- linha = linha..(mediaP/pesoTotal)..";"..nota.nota..";"..(((mediaP/pesoTotal)+nota.nota)/2).."\n"
               local formatMediaP = string.format("%.2f",(math.floor(mediaP/pesoTotal*100+0.5)/100))
               local formatMediaF = string.format("%.2f",(math.floor((formatMediaP+nota.nota)/2*100+0.5)/100))
               linha = linha..(formatMediaP)..";"..nota.nota..";"..(formatMediaF).."\n"
@@ -275,13 +272,10 @@ function organizaEstatistica(relatorioDisciplinas, tabelaAlunos)
     for j, aluno in ipairs(tabelaAlunos) do
       if aluno.curso == disciplina.turma then
         for k, disciplinaAluno in ipairs(aluno.disciplinas) do
-          print(aluno.disciplinaAluno, disciplina.codigo)
-          if aluno.disciplinaAluno == disciplina.codigo then
+          if disciplinaAluno == disciplina.codigo then
             media = media + aluno.mediaF[disciplina.codigo]
-            print(aluno.aprovado[disciplina.codigo], disciplina.codigo)
             if aluno.aprovado[disciplina.codigo] then
               aprovados = aprovados + 1
-              print (aprovados)
             else
               reprovados = reprovados +1
             end
@@ -289,7 +283,6 @@ function organizaEstatistica(relatorioDisciplinas, tabelaAlunos)
         end
       end
     end
-    print(aprovados, media, alunos)
     disciplina.aprovacao = 100* (aprovados/(aprovados+reprovados))
     disciplina.media = media/(aprovados+reprovados)
   end
