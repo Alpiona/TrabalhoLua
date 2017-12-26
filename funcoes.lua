@@ -3,14 +3,9 @@ Alunos._index = Alunos
 
 function Alunos:novo (linha)
   local novoAluno = {}
-  local cont = 1
   setmetatable(novoAluno, Aluno)
   local matricula, nome, disciplinas, tipo, curso = linha:match("^([^;]*);([^;]*);([^;]*);([^;]*);([^;]*)$")
-  novoAluno.disciplinas = {}
-  for disciplina in disciplinas:gmatch("(%w+)") do
-    novoAluno.disciplinas[cont] = disciplina
-    cont = cont+1
-  end
+  novoAluno.disciplinas = disciplinas
   novoAluno.matricula = matricula
   novoAluno.nome = nome
   novoAluno.tipo = tipo
@@ -174,11 +169,32 @@ function ordenaAvaliacoes (tabelaA, tabelaB)
 end
 
 function imprimePautas (tabelaAlunos, tabelaAvaliacoes, tabelaNotas, tabelaDisciplinas)
+  local ultimaDisciplina = tabelaAvaliacoes[1].disciplina
+  for i, disciplina in ipairs (tabelaDisciplinas) do
+    local colunas = "Matrícula;Aluno;"
+    local arquivoSaida = "1-pauta-"..disciplina.codigo..".csv"
+    local relatorioSaida = io.open(arquivoSaida, "w+")
+    local cont = 0
+    for j, avaliacao in ipairs(tabelaAvaliacoes) do
+      if avaliacao.disciplina == disciplina.codigo then
+        cont = cont + 1
+      end
+    end
+    for j, avaliacao in ipairs(tabelaAvaliacoes) do
+      if avaliacao.disciplina == disciplina.codigo and cont > 1 then
+        colunas = colunas..avaliacao.codigo..";"
+        cont = cont -1
+      end
+    end
+    colunas = colunas.."Média Parcial;Prova Final;Média Final"
+  end
+
+
 
 end
 
 function imprimeSaidas(tabelaAlunos, tabelaAvaliacoes, tabelaCursos, tabelaDisciplinas, tabelaNotas)
   table.sort(tabelaAlunos, ordenaAlunos)
-  table.sort(tabelaAvaliacoes, ordenAvaliacoes)
+  table.sort(tabelaAvaliacoes, ordenaAvaliacoes)
   imprimePautas(tabelaAlunos, tabelaAvaliacoes, tabelaNotas, tabelaDisciplinas)
 end
