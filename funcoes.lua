@@ -197,6 +197,7 @@ function arquivoPauta (tabelaAvaliacoes, disciplina)
     end
   end
   colunas = colunas.."Média Parcial;Prova Final;Média Final"
+  print(colunas)
   relatorioSaida:write(colunas.."\n")
   return pesoAvaliacoes, relatorioSaida
 end
@@ -246,13 +247,15 @@ end
 function imprimePautas (tabelaAlunos, tabelaAvaliacoes, tabelaNotas, tabelaDisciplinas)
 
   for i, disciplina in ipairs (tabelaDisciplinas) do
-    print ("======================Pauta " .. disciplina.codigo .. "======================")
+    print ("\n======================Pauta " .. disciplina.codigo .. "======================")
     local pesoAvaliacoes, arquivoSaida = arquivoPauta(tabelaAvaliacoes, disciplina)
     for j, aluno in ipairs (tabelaAlunos) do
       for k,disciplinaPresente in ipairs (aluno.disciplinas) do
           if (disciplina.codigo == disciplinaPresente) then
-          print (linhaAlunoPauta (pesoAvaliacoes, aluno, tabelaAvaliacoes, tabelaNotas, disciplinaPresente))
-          arquivoSaida:write(linhaAlunoPauta (pesoAvaliacoes, aluno, tabelaAvaliacoes, tabelaNotas, disciplinaPresente) .. "\n")
+          linha = linhaAlunoPauta (pesoAvaliacoes, aluno, tabelaAvaliacoes, tabelaNotas, disciplinaPresente)
+          --linha = string.gsub(linha, "." , ",")
+          print (linha)
+          arquivoSaida:write(linha .. "\n")
         end
       end
     end
@@ -316,7 +319,7 @@ function organizaEstatistica(relatorioDisciplinas, tabelaAlunos, tabelaCursos)
 end
 
 function imprimeEstatisticas (tabelaAlunos, tabelaCursos, tabelaDisciplinas)
-  print("\n===============Estatísticas===============\n")
+  print("\n===============Estatísticas===============")
   local colunas = "Código;Disciplina;Curso;Média;% Aprovados"
   local cont = 1
   local relatorioDisciplinas = {}
