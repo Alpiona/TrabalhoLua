@@ -296,7 +296,7 @@ function organizaEstatistica(relatorioDisciplinas, tabelaAlunos, tabelaCursos)
       end
     end
     disciplina.aprovacao = 100* (aprovados/(aprovados+reprovados))
-    disciplina.media = media/(aprovados+reprovados)
+    disciplina.media = string.format("%.2f",(math.floor(media/(aprovados+reprovados)*100+0.5)/100))
   end
   table.sort(relatorioDisciplinas, ordenaEstatisticaDisciplina)
   for i, disciplina in ipairs(relatorioDisciplinas) do
