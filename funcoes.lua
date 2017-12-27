@@ -15,6 +15,8 @@ function Alunos:novo (linha)
   novoAluno.nome = nome
   novoAluno.tipo = tipo
   novoAluno.curso = curso
+  novoAluno.mediaF ={}
+  novoAluno.aprovado={}
   return novoAluno
 end
 
@@ -204,8 +206,6 @@ function linhaAlunoPauta(pesoAvaliacoes, aluno,tabelaAvaliacoes, tabelaNotas, co
   local mediaP = 0
   local mediaF = 0
   local pesoTotal = 0
-  aluno.mediaF ={}
-  aluno.aprovado={}
   local linha = aluno.matricula..";"..aluno.nome..";"
   for j, avaliacao in ipairs (tabelaAvaliacoes) do
     if avaliacao.disciplina == codigo then
@@ -264,7 +264,19 @@ function criaDisciplinaRelatorio (codigo, nome, curso)
   return novaDisciplina
 end
 
-function organizaEstatistica(relatorioDisciplinas, tabelaAlunos)
+function ordenaEstatisticaDisciplina (tabelaA, tabelaB)
+  if tabelaA.codigo == tabelaB.codigo then
+    if tabelaA.aprovacao == tabelaB.aprovacao then
+      return tabelaA.media > tabelaB.media
+    else
+      return tabelaA.aprovacao > tabelaB.aprovacao
+    end
+  else
+    return tabelaA.codigo < tabelaB.codigo
+  end
+end
+
+function organizaEstatistica(relatorioDisciplinas, tabelaAlunos, tabelaCursos)
   for i, disciplina in ipairs(relatorioDisciplinas) do
     local aprovados = 0
     local reprovados = 0
@@ -286,8 +298,17 @@ function organizaEstatistica(relatorioDisciplinas, tabelaAlunos)
     disciplina.aprovacao = 100* (aprovados/(aprovados+reprovados))
     disciplina.media = media/(aprovados+reprovados)
   end
+  table.sort(relatorioDisciplinas, ordenaEstatisticaDisciplina)
   for i, disciplina in ipairs(relatorioDisciplinas) do
-    print (disciplina.codigo, disciplina.nome, disciplina.media, disciplina.aprovacao)
+    for j, curso in ipairs (tabelaCursos) do
+      if disciplina.turma == curso.codigo then
+        disciplina.turma = curso.nome
+      elseif disciplina.turma == "M" then
+        disciplina.turma = "Mestrado"
+      elseif disciplina.turma == "D" then
+        disciplina.turma = "Doutorado"
+      end
+    end
   end
 end
 
@@ -318,9 +339,9 @@ function imprimeEstatisticas (tabelaAlunos, tabelaCursos, tabelaDisciplinas)
     end
   end
   print (colunas)
-  organizaEstatistica(relatorioDisciplinas, tabelaAlunos)
+  organizaEstatistica(relatorioDisciplinas, tabelaAlunos, tabelaCursos)
   for y,disciplinaRelatorio in ipairs(relatorioDisciplinas) do
-
+    print(disciplinaRelatorio.codigo..";"..disciplinaRelatorio.nome..";"..disciplinaRelatorio.turma..";"..disciplinaRelatorio.media..";"..disciplinaRelatorio.aprovacao.."%")
   end
 end
 
