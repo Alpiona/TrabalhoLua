@@ -218,7 +218,7 @@ function linhaAlunoPauta(pesoAvaliacoes, aluno,tabelaAvaliacoes, tabelaNotas, co
               pesoTotal = pesoTotal + pesoAvaliacoes[cont]
               if (cont == #pesoAvaliacoes) and (mediaP/pesoTotal) >= 7 then
                 local formatMediaP = string.format("%.2f",(math.floor(mediaP/pesoTotal*100+0.5)/100))
-                linha = linha..(formatMediaP)..";-;"..(formatMediaP).."\n"
+                linha = linha..(formatMediaP)..";-;"..(formatMediaP)
                 aluno.mediaF[codigo] = mediaP/pesoTotal
                 aluno.aprovado[codigo] = true
                 return linha
@@ -227,7 +227,7 @@ function linhaAlunoPauta(pesoAvaliacoes, aluno,tabelaAvaliacoes, tabelaNotas, co
             elseif (matricula == aluno.matricula) and (cont > #pesoAvaliacoes) then
               local formatMediaP = string.format("%.2f",(math.floor(mediaP/pesoTotal*100+0.5)/100))
               local formatMediaF = string.format("%.2f",(math.floor((formatMediaP+nota.nota)/2*100+0.5)/100))
-              linha = linha..(formatMediaP)..";"..nota.nota..";"..(formatMediaF).."\n"
+              linha = linha..(formatMediaP)..";"..nota.nota..";"..(formatMediaF)
               aluno.mediaF[codigo] = ((mediaP/pesoTotal)+nota.nota)/2
               if aluno.mediaF[codigo] >= 5 then
                 aluno.aprovado[codigo] = true
@@ -244,12 +244,15 @@ function linhaAlunoPauta(pesoAvaliacoes, aluno,tabelaAvaliacoes, tabelaNotas, co
 end
 
 function imprimePautas (tabelaAlunos, tabelaAvaliacoes, tabelaNotas, tabelaDisciplinas)
+
   for i, disciplina in ipairs (tabelaDisciplinas) do
+    print ("======================Pauta " .. disciplina.codigo .. "======================")
     local pesoAvaliacoes, arquivoSaida = arquivoPauta(tabelaAvaliacoes, disciplina)
     for j, aluno in ipairs (tabelaAlunos) do
       for k,disciplinaPresente in ipairs (aluno.disciplinas) do
-        if (disciplina.codigo == disciplinaPresente) then
-          arquivoSaida:write(linhaAlunoPauta (pesoAvaliacoes, aluno, tabelaAvaliacoes, tabelaNotas, disciplinaPresente))
+          if (disciplina.codigo == disciplinaPresente) then
+          print (linhaAlunoPauta (pesoAvaliacoes, aluno, tabelaAvaliacoes, tabelaNotas, disciplinaPresente))
+          arquivoSaida:write(linhaAlunoPauta (pesoAvaliacoes, aluno, tabelaAvaliacoes, tabelaNotas, disciplinaPresente) .. "\n")
         end
       end
     end
@@ -313,6 +316,7 @@ function organizaEstatistica(relatorioDisciplinas, tabelaAlunos, tabelaCursos)
 end
 
 function imprimeEstatisticas (tabelaAlunos, tabelaCursos, tabelaDisciplinas)
+  print("\n===============Estatísticas===============\n")
   local colunas = "Código;Disciplina;Curso;Média;% Aprovados"
   local cont = 1
   local relatorioDisciplinas = {}
@@ -343,7 +347,9 @@ function imprimeEstatisticas (tabelaAlunos, tabelaCursos, tabelaDisciplinas)
   for y,disciplinaRelatorio in ipairs(relatorioDisciplinas) do
     print(disciplinaRelatorio.codigo..";"..disciplinaRelatorio.nome..";"..disciplinaRelatorio.turma..";"..disciplinaRelatorio.media..";"..disciplinaRelatorio.aprovacao.."%")
   end
+  print();
 end
+
 
 function imprimeSaidas(tabelaAlunos, tabelaAvaliacoes, tabelaCursos, tabelaDisciplinas, tabelaNotas)
   table.sort(tabelaAlunos, ordenaAlunos)
