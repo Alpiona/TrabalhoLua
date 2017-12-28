@@ -323,6 +323,7 @@ function imprimeEstatisticas (tabelaAlunos, tabelaCursos, tabelaDisciplinas)
   local colunas = "Código;Disciplina;Curso;Média;% Aprovados"
   local cont = 1
   local relatorioDisciplinas = {}
+  local relatorioSaida = io.open("2-disciplinas.csv", "w+")
   local precisaCriar = false
   for i, disciplina in ipairs(tabelaDisciplinas) do
     for j, aluno in ipairs(tabelaAlunos) do
@@ -345,15 +346,17 @@ function imprimeEstatisticas (tabelaAlunos, tabelaCursos, tabelaDisciplinas)
       end
     end
   end
+  relatorioSaida:write(colunas.."\n")
   print (colunas)
   organizaEstatistica(relatorioDisciplinas, tabelaAlunos, tabelaCursos)
   for y,disciplinaRelatorio in ipairs(relatorioDisciplinas) do
     local linha = disciplinaRelatorio.codigo..";"..disciplinaRelatorio.nome..";"..disciplinaRelatorio.turma..";"..disciplinaRelatorio.media..";"..disciplinaRelatorio.aprovacao.."%"
-    print((string.gsub(linha, "%.",",")))
+    linha = string.gsub(linha, "%.",",")
+    relatorioSaida:write(linha.."\n")
+    print(linha)
   end
   print();
 end
-
 
 function imprimeSaidas(tabelaAlunos, tabelaAvaliacoes, tabelaCursos, tabelaDisciplinas, tabelaNotas)
   table.sort(tabelaAlunos, ordenaAlunos)
