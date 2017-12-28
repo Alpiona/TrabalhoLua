@@ -253,7 +253,7 @@ function imprimePautas (tabelaAlunos, tabelaAvaliacoes, tabelaNotas, tabelaDisci
       for k,disciplinaPresente in ipairs (aluno.disciplinas) do
           if (disciplina.codigo == disciplinaPresente) then
           linha = linhaAlunoPauta (pesoAvaliacoes, aluno, tabelaAvaliacoes, tabelaNotas, disciplinaPresente)
-          --linha = string.gsub(linha, "." , ",")
+          linha = string.gsub(linha, "%." , ",")
           print (linha)
           arquivoSaida:write(linha .. "\n")
         end
@@ -348,7 +348,8 @@ function imprimeEstatisticas (tabelaAlunos, tabelaCursos, tabelaDisciplinas)
   print (colunas)
   organizaEstatistica(relatorioDisciplinas, tabelaAlunos, tabelaCursos)
   for y,disciplinaRelatorio in ipairs(relatorioDisciplinas) do
-    print(disciplinaRelatorio.codigo..";"..disciplinaRelatorio.nome..";"..disciplinaRelatorio.turma..";"..disciplinaRelatorio.media..";"..disciplinaRelatorio.aprovacao.."%")
+    local linha = disciplinaRelatorio.codigo..";"..disciplinaRelatorio.nome..";"..disciplinaRelatorio.turma..";"..disciplinaRelatorio.media..";"..disciplinaRelatorio.aprovacao.."%"
+    print((string.gsub(linha, "%.",",")))
   end
   print();
 end
